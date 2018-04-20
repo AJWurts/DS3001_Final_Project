@@ -44,7 +44,7 @@ data = pd.read_csv("mm_master_demos.csv")
 #
 
 # Data Analysis then Display onto Map
-# Filters data down to Headshots from AWP (A weapon in the game)
+# Filters data down to Headshots from Desert Eagle (A weapon in the game)
 if True:
     dust_map = map.Map(2127, 3455, -2486, -1150, 'de_dust2.png')
     top_players = [76561198023317027]
