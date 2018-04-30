@@ -1,7 +1,6 @@
 
 from tkinter import *
 from model.map import Map
-from PIL import Image, ImageTk
 
 
 class SelectionCanvas(Canvas):
