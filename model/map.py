@@ -1,33 +1,68 @@
-from PIL import Image, ImageDraw
-
+from PIL import Image, ImageDraw, ImageTk
+from pandas import read_csv
 
 class Map:
     A = 220
-    RED  = (255, 0, 0, A)
-    GREEN = (0, 255, 0, A)
-    TERRORIST = (255, 150, 0, A)
-    COUNTER_TERRORIST = (0, 0, 255, A)
+    RED               = (255, 000, 000, A)
+    GREEN             = (000, 255, 000, A)
+    TERRORIST         = (255, 150, 000, A)
+    COUNTER_TERRORIST = (000, 000, 255, A)
     CIRCLE_SIZE = 2
+    OFFSET = 10
+    MAPS = ['de_cache', 'de_cbble', 'de_dust2', 'de_inferno', 'de_mirage', 'de_overpass', 'de_train']
 
-    def __init__(self, end_x, start_y, start_x, end_y, image_name):
-        self.start_x = start_x
-        self.start_y = start_y
-        self.end_x = end_x
-        self.end_y = end_y
-        self.diff_x = self.start_x - end_x
-        self.diff_y = self.start_y - end_y
-        self.img = Image.open("de_dust2.png")
+
+    def __init__(self, mapName):
+        self.name = mapName
+        self.changeMap(mapName)
+
+
+    def loadMap(self):
+        mapData = read_csv('map_data.csv')
+        current = mapData[mapData.map == self.name]
+        self.startX = current['StartX'].as_matrix()[0]
+        self.startY = current['EndY'].as_matrix()[0]
+        self.endX = current['EndX'].as_matrix()[0]
+        self.endY = current['StartY'].as_matrix()[0]
+        self.diffX = self.startX - self.endX
+        self.diffY = self.startY - self.endY
+        self.img = Image.open("maps/" + self.name + ".png")
         self.draw = ImageDraw.Draw(self.img)
+        mapData.close()
 
+    def changeMap(self, mapName):
+        try:
+            self.img = Image.open("maps/" + mapName + ".png")
+            self.name = mapName
+            self.loadMap()
+        except Exception as e:
+            print("Map Not Found")
 
-    def convert(self, x, y):
-        x = self.start_x - x
-        y = self.start_y - y
+    def convertRealToImg(self, x, y):
+        x = self.startX - x
+        y = self.startY - y
 
-        x /= self.diff_x
-        y /= self.diff_y
+        x /= self.diffX
+        y /= self.diffY
 
-        return (x * 1024, y * 1024)
+        return x * 1024, y * 1024
+
+    def convertImgToReal(self, x, y):
+        x /= 1024
+        y /= 1024
+
+        x *= self.diffX
+        y *= self.diffY
+
+        return self.startX - x, self.startY - y
+
+    def convertBox(self, box):
+        # (x1, y1, x2, y2)
+        newBox = self.convertImgToReal(box[0], box[1]) + \
+                 self.convertImgToReal(box[2], box[3])
+
+        return newBox
+
 
     def drawPoint(self, xy, color):
         xL = xy[0] - Map.CIRCLE_SIZE
@@ -38,8 +73,8 @@ class Map:
 
 
     def drawShot(self, apx, apy, vpx, vpy, team):
-        n_ap = self.convert(apx, apy)
-        n_vp = self.convert(vpx, vpy)
+        n_ap = self.convertRealToImg(apx, apy)
+        n_vp = self.convertRealToImg(vpx, vpy)
         if team == 'CounterTerrorist':
             color = Map.COUNTER_TERRORIST
         else:
@@ -49,6 +84,17 @@ class Map:
         self.drawPoint(n_ap, Map.GREEN)
         self.drawPoint(n_vp, Map.RED)
 
+    def addData(self, data):
+        filtered = data.filter(items=["att_pos_x", "att_pos_y", "vic_pos_x", "vic_pos_y", 'att_side'])
+        for line in filtered.as_matrix():
+            self.drawShot(line[0], line[1], line[2], line[3], line[4])
+
+    def getImageTk(self):
+        return ImageTk.PhotoImage(self.img)
+
+    def clear(self):
+        self.img = Image.open("maps/" + self.name + ".png")
+        self.draw = ImageDraw.Draw(self.img)
 
     def show(self):
         self.img.show()

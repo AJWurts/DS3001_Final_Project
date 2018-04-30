@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np7
 import pandas as pd
 from model import map
 import matplotlib.pyplot as plt
@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 
 #2127,3455,1024,1024,-2486,-1150
 
-de_dust2 = map.Map(2127,3455,-2486,-1150, 'de_dust2.png')
+de_dust2 = map.Map('de_dust2')
 
 data = pd.read_csv("mm_master_demos.csv")
 #
@@ -46,7 +46,7 @@ data = pd.read_csv("mm_master_demos.csv")
 # Data Analysis then Display onto Map
 # Filters data down to Headshots from AWP (A weapon in the game)
 if True:
-    dust_map = map.Map(2127, 3455, -2486, -1150, 'de_dust2.png')
+    dust_map = map.Map('de_dust2')
     top_players = [76561198023317027]
     player_id = top_players[0]
     filtered_data = data[(data.map == 'de_dust2')
@@ -65,7 +65,7 @@ if True:
 if False: # Toggle
     sides = ['CounterTerrorist', 'Terrorist']
     for side in sides:
-        dust_map = map.Map(2127,3455,-2486,-1150, 'de_dust2.png')
+        dust_map = map.Map('de_dust2.png')
         filtered_data = data[(data.map == 'de_dust2')
                                  & (data.att_side == side)
                                 # & ((data.att_id == player_id)
