@@ -15,6 +15,7 @@ class Map:
     def __init__(self, mapName):
         self.name = mapName
         self.changeMap(mapName)
+        self.loadMap()
 
 
     def loadMap(self):
@@ -28,7 +29,7 @@ class Map:
         self.diffY = self.startY - self.endY
         self.img = Image.open("maps/" + self.name + ".png")
         self.draw = ImageDraw.Draw(self.img)
-        mapData.close()
+        # mapData.close()
 
     def changeMap(self, mapName):
         try:
